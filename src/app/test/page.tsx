@@ -42,7 +42,7 @@ const TestPage = () => {
       
       // Get current user
       const supabase = createClient()
-      const { data: user } = await supabase.auth.getUser();
+      const { data: { user } } = await supabase.auth.getUser();
       
       // Save test result to database
       const { data, error } = await supabase
@@ -203,7 +203,7 @@ const TestPage = () => {
             <ul className="text-indigo-700 space-y-1 text-sm">
               <li>• Answer based on how you naturally are, not how you think you should be</li>
               <li>• Consider your typical behavior patterns over time</li>
-              <li>• Don't overthink - go with your first instinct</li>
+              <li>• Don&apos;t overthink - go with your first instinct</li>
               <li>• Be honest with yourself for the most accurate assessment</li>
             </ul>
           </div>

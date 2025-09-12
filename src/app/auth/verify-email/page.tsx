@@ -42,7 +42,7 @@ export default function VerifyEmailPage() {
         setResendCooldown(Math.ceil(remainingTime / 1000))
       }
     }
-  }, [])
+  }, [router, supabase.auth])
 
   useEffect(() => {
     if (resendCooldown > 0) {
@@ -104,7 +104,7 @@ export default function VerifyEmailPage() {
             <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
               <li>检查您的邮箱收件箱</li>
               <li>查找来自我们的验证邮件</li>
-              <li>点击邮件中的"验证邮箱"按钮</li>
+              <li>点击邮件中的&quot;验证邮箱&quot;按钮</li>
               <li>返回此页面或直接登录</li>
             </ol>
           </div>

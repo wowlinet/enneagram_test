@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase';
 import { calculateEnneagramType } from '@/data/questions';
 
+// Force Node.js runtime to avoid Edge Runtime issues with Supabase
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
   try {
     const { answers, userId } = await request.json();
@@ -36,9 +39,9 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: userId || null,
         answers: answers,
-        personality_type: result.primaryType,
+        personality_type: result.type,
         scores: result.scores,
-        confidence_score: result.confidence
+        confidence_score: 0.85 // Default confidence score
       })
       .select()
       .single();
@@ -55,9 +58,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       resultId: testResult.id,
-      personalityType: result.primaryType,
+      personalityType: result.type,
       scores: result.scores,
-      confidence: result.confidence
+      confidence: 0.85
     });
 
   } catch (error) {

@@ -19,11 +19,14 @@ export async function GET(
       );
     }
 
-    // Fetch article from database
+    // Fetch article from database with category join
     const supabase = await createServerSupabaseClient();
     const { data: article, error: articleError } = await supabase
       .from('articles')
-      .select('*')
+      .select(`
+        *,
+        categories(name)
+      `)
       .eq('slug', slug)
       .eq('published', true)
       .single();
@@ -42,38 +45,24 @@ export async function GET(
       );
     }
 
-    // Increment view count
-    const { error: updateError } = await supabase
-      .from('articles')
-      .update({ views: (article.views || 0) + 1 })
-      .eq('id', article.id);
+    // Note: View count increment will be added when views field exists in database
 
-    if (updateError) {
-      console.error('Failed to update view count:', updateError);
-      // Don't fail the request if view count update fails
-    }
-
-    // Fetch related articles (same category or personality type, excluding current article)
+    // Fetch related articles (same category, excluding current article)
     const { data: relatedArticles } = await supabase
       .from('articles')
-      .select('id, title, excerpt, slug, category, personality_type, published_at, reading_time, featured_image')
+      .select(`
+        id, title, excerpt, slug, featured_image, created_at,
+        categories(name)
+      `)
       .eq('published', true)
       .neq('id', article.id)
-      .or(`category.eq.${article.category},personality_type.eq.${article.personality_type}`)
-      .order('published_at', { ascending: false })
+      .eq('category_id', article.category_id)
+      .order('created_at', { ascending: false })
       .limit(3);
 
     // Get personality type details if article is type-specific
     let personalityTypeDetails = null;
-    if (article.personality_type) {
-      const { data: typeData } = await supabase
-        .from('personality_types')
-        .select('type_number, title, description')
-        .eq('type_number', article.personality_type)
-        .single();
-      
-      personalityTypeDetails = typeData;
-    }
+    // Note: personality_type functionality will be added later when the field exists
 
     return NextResponse.json({
       success: true,
@@ -83,20 +72,30 @@ export async function GET(
         content: article.content,
         excerpt: article.excerpt,
         slug: article.slug,
-        category: article.category,
-        personalityType: article.personality_type,
-        author: article.author,
-        publishedAt: article.published_at,
+        category: article.categories?.name || 'General',
+        personalityType: null, // Will be added when field exists
+        author: 'Admin', // Default author until field is added
+        publishedAt: article.created_at,
         updatedAt: article.updated_at,
-        readingTime: article.reading_time,
-        views: (article.views || 0) + 1, // Return updated view count
+        readingTime: 5, // Default reading time until field is added
+        views: 0, // Default views until field is added
         featuredImage: article.featured_image,
-        tags: article.tags || [],
-        seoTitle: article.seo_title,
-        seoDescription: article.seo_description
+        tags: [], // Default empty tags until field is added
+        seoTitle: article.title,
+        seoDescription: article.excerpt
       },
       personalityTypeDetails,
-      relatedArticles: relatedArticles || []
+      relatedArticles: (relatedArticles || []).map(ra => ({
+        id: ra.id,
+        title: ra.title,
+        excerpt: ra.excerpt,
+        slug: ra.slug,
+        category: ra.categories?.name || 'General',
+        personalityType: null,
+        publishedAt: ra.created_at,
+        readingTime: 5,
+        featuredImage: ra.featured_image
+      }))
     });
 
   } catch (error) {

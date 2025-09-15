@@ -24,12 +24,15 @@ export async function GET(request: NextRequest) {
 
     const offset = (page - 1) * limit;
 
-    // Build query
+    // Build query with category join
     let query = supabase
       .from('articles')
-      .select('id, title, excerpt, category, personality_type, author, published_at, reading_time, featured_image', { count: 'exact' })
+      .select(`
+        id, title, excerpt, slug, featured_image, created_at, updated_at,
+        categories(name)
+      `, { count: 'exact' })
       .eq('published', true)
-      .order('published_at', { ascending: false });
+      .order('created_at', { ascending: false });
 
     // Apply filters
     if (search) {
@@ -37,15 +40,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (category) {
-      query = query.eq('category', category);
+      // Filter by category name through join
+      query = query.eq('categories.name', category);
     }
 
-    if (personalityType) {
-      const typeNumber = parseInt(personalityType);
-      if (typeNumber >= 1 && typeNumber <= 9) {
-        query = query.eq('personality_type', typeNumber);
-      }
-    }
+    // Note: personality_type filtering will be added when field exists
 
     // Apply pagination
     query = query.range(offset, offset + limit - 1);
@@ -67,7 +66,18 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      articles: articles || [],
+      articles: (articles || []).map(article => ({
+        id: article.id,
+        title: article.title,
+        excerpt: article.excerpt,
+        slug: article.slug,
+        category: article.categories?.name || 'General',
+        personalityType: null, // Will be added when field exists
+        author: 'Admin', // Default author
+        publishedAt: article.created_at,
+        readingTime: 5, // Default reading time
+        featuredImage: article.featured_image
+      })),
       pagination: {
         currentPage: page,
         totalPages,

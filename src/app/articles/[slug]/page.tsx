@@ -7,6 +7,7 @@ import Image from 'next/image';
 // Removed Supabase dependency
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { getAllPublishedArticles } from '@/data/articles';
 
 interface Article {
   id: string;

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase';
 import { calculateEnneagramType } from '@/data/questions';
+import { saveTestResult } from '@/data/personality-types';
 
 // Force Node.js runtime to avoid Edge Runtime issues with Supabase
 export const runtime = 'nodejs';
@@ -32,27 +32,14 @@ export async function POST(request: NextRequest) {
     // Calculate personality type and scores
     const result = calculateEnneagramType(answers);
 
-    // Save test result to database
-    const supabase = await createServerSupabaseClient();
-    const { data: testResult, error: insertError } = await supabase
-      .from('test_results')
-      .insert({
-        user_id: userId || null,
-        answers: answers,
-        personality_type: result.type,
-        scores: result.scores,
-        confidence_score: 0.85 // Default confidence score
-      })
-      .select()
-      .single();
-
-    if (insertError) {
-      console.error('Database insert error:', insertError);
-      return NextResponse.json(
-        { error: 'Failed to save test results' },
-        { status: 500 }
-      );
-    }
+    // Save test result to local data
+    const testResult = saveTestResult({
+      user_id: userId || undefined,
+      answers: answers,
+      personality_type: result.type,
+      scores: result.scores,
+      confidence_score: 0.85 // Default confidence score
+    });
 
     // Return the test result with ID for redirect
     return NextResponse.json({

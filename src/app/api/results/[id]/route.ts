@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase';
+import { getTestResultById, getPersonalityTypeByNumber } from '@/data/personality-types';
 
 // Force Node.js runtime to avoid Edge Runtime issues with Supabase
 export const runtime = 'nodejs';
@@ -20,40 +20,23 @@ export async function GET(
       );
     }
 
-    // Fetch test result from database
-    const supabase = await createServerSupabaseClient();
-    const { data: testResult, error: resultError } = await supabase
-      .from('test_results')
-      .select('*')
-      .eq('id', id)
-      .single();
+    // Get test result from local data
+    const testResult = getTestResultById(id);
 
-    if (resultError) {
-      if (resultError.code === 'PGRST116') {
-        return NextResponse.json(
-          { error: 'Test result not found' },
-          { status: 404 }
-        );
-      }
-      console.error('Database query error:', resultError);
+    if (!testResult) {
       return NextResponse.json(
-        { error: 'Failed to fetch test result' },
-        { status: 500 }
+        { error: 'Test result not found' },
+        { status: 404 }
       );
     }
 
-    // Fetch personality type details
-    const { data: personalityType, error: typeError } = await supabase
-      .from('personality_types')
-      .select('*')
-      .eq('type_number', testResult.personality_type)
-      .single();
+    // Get personality type details from local data
+    const personalityType = getPersonalityTypeByNumber(testResult.personality_type);
 
-    if (typeError) {
-      console.error('Personality type query error:', typeError);
+    if (!personalityType) {
       return NextResponse.json(
-        { error: 'Failed to fetch personality type details' },
-        { status: 500 }
+        { error: 'Personality type not found' },
+        { status: 404 }
       );
     }
 

@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, User, Calendar, Eye, Share2, BookOpen } from 'lucide-react';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Article {
   id: string;
@@ -217,17 +219,40 @@ const ArticleDetailPage = () => {
               </div>
               <div className="flex items-center">
                 <Eye className="w-4 h-4 mr-2" />
-                {article.views} views
+                {article.views}+ views
               </div>
             </div>
           </header>
 
           {/* Article Content */}
-          <div className="prose prose-lg prose-indigo max-w-none mb-12">
-            <div 
-              className="text-gray-700 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: article.content }}
-            />
+          <div className="prose prose-lg prose-indigo max-w-none mb-12 text-gray-700 leading-relaxed">
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h1: ({node, ...props}) => <h1 className="text-3xl font-bold text-gray-900 mt-8 mb-4" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-2xl font-bold text-gray-900 mt-6 mb-3" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-xl font-semibold text-gray-900 mt-5 mb-2" {...props} />,
+                h4: ({node, ...props}) => <h4 className="text-lg font-semibold text-gray-900 mt-4 mb-2" {...props} />,
+                p: ({node, ...props}) => <p className="mb-4 leading-relaxed text-gray-700" {...props} />,
+                ul: ({node, ...props}) => <ul className="list-disc list-inside mb-4 space-y-2" {...props} />,
+                ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-4 space-y-2" {...props} />,
+                li: ({node, ...props}) => <li className="ml-4" {...props} />,
+                blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-indigo-500 pl-4 italic text-gray-700 my-4" {...props} />,
+                code: ({node, inline, ...props}) => 
+                  inline 
+                    ? <code className="bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm font-mono" {...props} />
+                    : <code className="block bg-gray-100 text-gray-800 p-4 rounded-lg text-sm font-mono overflow-x-auto" {...props} />,
+                pre: ({node, ...props}) => <pre className="bg-gray-100 rounded-lg p-4 overflow-x-auto mb-4" {...props} />,
+                strong: ({node, ...props}) => <strong className="font-semibold text-gray-900" {...props} />,
+                em: ({node, ...props}) => <em className="italic" {...props} />,
+                a: ({node, ...props}) => <a className="text-indigo-600 hover:text-indigo-800 underline" {...props} />,
+                table: ({node, ...props}) => <table className="min-w-full border-collapse border border-gray-300 my-4" {...props} />,
+                th: ({node, ...props}) => <th className="border border-gray-300 px-4 py-2 bg-gray-100 font-semibold text-left" {...props} />,
+                td: ({node, ...props}) => <td className="border border-gray-300 px-4 py-2" {...props} />,
+              }}
+            >
+              {article.content}
+            </ReactMarkdown>
           </div>
 
           {/* Tags */}

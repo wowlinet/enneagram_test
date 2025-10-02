@@ -5,8 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, Filter, Clock, User, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 
 interface Article {
   id: string;
@@ -126,7 +124,14 @@ const ArticlesContent = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    if (!dateString) return 'Unknown Date';
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return 'Unknown Date';
+    }
+    
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -140,27 +145,21 @@ const ArticlesContent = () => {
 
   if (loading && articles.length === 0) {
     return (
-      <>
-        <Header />
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-center min-h-96">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading articles...</p>
-              </div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-96">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading articles...</p>
             </div>
           </div>
         </div>
-        <Footer />
-      </>
+      </div>
     );
   }
 
   return (
-    <>
-      <Header />
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
         <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
@@ -289,7 +288,7 @@ const ArticlesContent = () => {
               <article
                 key={article.id}
                 className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-                onClick={() => router.push(`/articles/${article.id}`)}
+                onClick={() => router.push(`/articles/${article.slug}`)}
               >
                 {/* Featured Image */}
                 <div className="aspect-video bg-gradient-to-r from-indigo-500 to-purple-600 relative">
@@ -337,12 +336,8 @@ const ArticlesContent = () => {
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center">
-                        <User className="w-4 h-4 mr-1" />
-                        {article.author}
-                      </div>
-                      <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-1" />
-                        {article.reading_time} min
+                        {article.reading_time || 5} min
                       </div>
                     </div>
                     <div className="flex items-center">
@@ -420,28 +415,22 @@ const ArticlesContent = () => {
         )}
       </div>
     </div>
-    <Footer />
-    </>
   );
 };
 
 const ArticlesPage = () => {
   return (
     <Suspense fallback={
-      <>
-        <Header />
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-center min-h-96">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading articles...</p>
-              </div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-96">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading articles...</p>
             </div>
           </div>
         </div>
-        <Footer />
-      </>
+      </div>
     }>
       <ArticlesContent />
     </Suspense>

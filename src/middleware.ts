@@ -41,6 +41,9 @@ export async function middleware(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/test') &&
     !request.nextUrl.pathname.startsWith('/articles') &&
     !request.nextUrl.pathname.startsWith('/api') &&
+    !request.nextUrl.pathname.startsWith('/about') &&
+    !request.nextUrl.pathname.startsWith('/contact') &&
+    !request.nextUrl.pathname.startsWith('/privacy-policy') &&
     request.nextUrl.pathname !== '/'
   ) {
     // no user, potentially respond by redirecting the user to the login page

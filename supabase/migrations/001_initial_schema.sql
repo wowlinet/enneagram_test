@@ -1,6 +1,6 @@
 -- Create profiles table
 CREATE TABLE IF NOT EXISTS profiles (
-  id UUID REFERENCES auth.users(id) PRIMARY KEY,
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   name TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS personality_types (
 -- Create test_results table
 CREATE TABLE IF NOT EXISTS test_results (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id),
+  user_id UUID,
   answers INTEGER[] NOT NULL,
   personality_type INTEGER NOT NULL REFERENCES personality_types(type_number),
   scores JSONB NOT NULL DEFAULT '{}',
@@ -52,66 +52,13 @@ CREATE TABLE IF NOT EXISTS articles (
 -- Create bookmarks table
 CREATE TABLE IF NOT EXISTS bookmarks (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) NOT NULL,
+  user_id UUID NOT NULL,
   article_id UUID REFERENCES articles(id) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(user_id, article_id)
 );
 
--- Enable RLS
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE test_results ENABLE ROW LEVEL SECURITY;
-ALTER TABLE articles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE bookmarks ENABLE ROW LEVEL SECURITY;
-ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE personality_types ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies for profiles
-CREATE POLICY "Users can view own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id);
-
-CREATE POLICY "Users can update own profile" ON profiles
-  FOR UPDATE USING (auth.uid() = id);
-
-CREATE POLICY "Users can insert own profile" ON profiles
-  FOR INSERT WITH CHECK (auth.uid() = id);
-
--- RLS Policies for test_results
-CREATE POLICY "Users can view own test results" ON test_results
-  FOR SELECT USING (auth.uid() = user_id OR user_id IS NULL);
-
-CREATE POLICY "Users can insert test results" ON test_results
-  FOR INSERT WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
-
--- RLS Policies for articles (public read)
-CREATE POLICY "Anyone can view published articles" ON articles
-  FOR SELECT USING (published = true);
-
--- RLS Policies for categories (public read)
-CREATE POLICY "Anyone can view categories" ON categories
-  FOR SELECT USING (true);
-
--- RLS Policies for personality_types (public read)
-CREATE POLICY "Anyone can view personality types" ON personality_types
-  FOR SELECT USING (true);
-
--- RLS Policies for bookmarks
-CREATE POLICY "Users can view own bookmarks" ON bookmarks
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own bookmarks" ON bookmarks
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete own bookmarks" ON bookmarks
-  FOR DELETE USING (auth.uid() = user_id);
-
--- Grant permissions to anon and authenticated roles
-GRANT SELECT ON personality_types TO anon, authenticated;
-GRANT SELECT ON articles TO anon, authenticated;
-GRANT SELECT ON categories TO anon, authenticated;
-GRANT SELECT, INSERT ON test_results TO anon, authenticated;
-GRANT ALL PRIVILEGES ON profiles TO authenticated;
-GRANT ALL PRIVILEGES ON bookmarks TO authenticated;
 
 -- Insert initial personality types data
 INSERT INTO personality_types (type_number, title, description, strengths, growth_areas, characteristics) VALUES
@@ -137,18 +84,3 @@ INSERT INTO articles (title, slug, content, excerpt, category_id, published) VAL
 ('Understanding Type 1: The Perfectionist', 'understanding-type-1-perfectionist', 'Type 1 personalities are driven by a desire to be good, right, and perfect...', 'Learn about the core motivations and characteristics of Type 1 personalities.', (SELECT id FROM categories WHERE slug = 'personality-types'), true),
 ('How to Grow as a Type 2', 'how-to-grow-type-2', 'Type 2 personalities can grow by learning to recognize their own needs...', 'Growth strategies specifically designed for Type 2 personalities.', (SELECT id FROM categories WHERE slug = 'self-development'), true),
 ('Enneagram in Relationships', 'enneagram-relationships', 'Understanding your partner''s Enneagram type can transform your relationship...', 'Discover how the Enneagram can improve your relationships.', (SELECT id FROM categories WHERE slug = 'relationships'), true);
-
--- Create function to handle user profile creation
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO public.profiles (id, email, name)
-  VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data->>'name');
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Create trigger for new user signup
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();

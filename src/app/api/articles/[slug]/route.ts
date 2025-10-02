@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase';
+import { getArticleBySlug, getArticlesByCategory, getCategoryById } from '@/data/articles';
 
-// Force Node.js runtime to avoid Edge Runtime issues with Supabase
+// Force the route to use Node.js runtime
 export const runtime = 'nodejs';
 
 export async function GET(
@@ -10,55 +10,31 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
-
-    // Validate slug format
-    if (!slug || typeof slug !== 'string' || slug.length < 1) {
+    
+    if (!slug) {
       return NextResponse.json(
-        { error: 'Invalid article slug' },
+        { success: false, error: 'Slug is required' },
         { status: 400 }
       );
     }
 
-    // Fetch article from database with category join
-    const supabase = await createServerSupabaseClient();
-    const { data: article, error: articleError } = await supabase
-      .from('articles')
-      .select(`
-        *,
-        categories(name)
-      `)
-      .eq('slug', slug)
-      .eq('published', true)
-      .single();
+    // Get the article by slug from local data
+    const article = getArticleBySlug(slug);
 
-    if (articleError) {
-      if (articleError.code === 'PGRST116') {
-        return NextResponse.json(
-          { error: 'Article not found' },
-          { status: 404 }
-        );
-      }
-      console.error('Article query error:', articleError);
+    if (!article) {
       return NextResponse.json(
-        { error: 'Failed to fetch article' },
-        { status: 500 }
+        { success: false, error: 'Article not found' },
+        { status: 404 }
       );
     }
 
-    // Note: View count increment will be added when views field exists in database
+    // Get the category information
+    const category = getCategoryById(article.category_id);
 
-    // Fetch related articles (same category, excluding current article)
-    const { data: relatedArticles } = await supabase
-      .from('articles')
-      .select(`
-        id, title, excerpt, slug, featured_image, created_at,
-        categories(name)
-      `)
-      .eq('published', true)
-      .neq('id', article.id)
-      .eq('category_id', article.category_id)
-      .order('created_at', { ascending: false })
-      .limit(3);
+    // Get related articles from the same category
+    const relatedArticles = getArticlesByCategory(article.category_id)
+      .filter(ra => ra.id !== article.id)
+      .slice(0, 3);
 
     // Get personality type details if article is type-specific
     let personalityTypeDetails = null;
@@ -72,30 +48,33 @@ export async function GET(
         content: article.content,
         excerpt: article.excerpt,
         slug: article.slug,
-        category: article.categories?.name || 'General',
+        category: category?.name || 'General',
         personalityType: null, // Will be added when field exists
         author: 'Admin', // Default author until field is added
         publishedAt: article.created_at,
         updatedAt: article.updated_at,
         readingTime: 5, // Default reading time until field is added
-        views: 0, // Default views until field is added
+        views: 999, // Default views until field is added
         featuredImage: article.featured_image,
         tags: [], // Default empty tags until field is added
         seoTitle: article.title,
         seoDescription: article.excerpt
       },
       personalityTypeDetails,
-      relatedArticles: (relatedArticles || []).map(ra => ({
-        id: ra.id,
-        title: ra.title,
-        excerpt: ra.excerpt,
-        slug: ra.slug,
-        category: ra.categories?.name || 'General',
-        personalityType: null,
-        publishedAt: ra.created_at,
-        readingTime: 5,
-        featuredImage: ra.featured_image
-      }))
+      relatedArticles: relatedArticles.map(ra => {
+        const raCategory = getCategoryById(ra.category_id);
+        return {
+          id: ra.id,
+          title: ra.title,
+          excerpt: ra.excerpt,
+          slug: ra.slug,
+          category: raCategory?.name || 'General',
+          personalityType: null,
+          publishedAt: ra.created_at,
+          readingTime: 5,
+          featuredImage: ra.featured_image
+        };
+      })
     });
 
   } catch (error) {

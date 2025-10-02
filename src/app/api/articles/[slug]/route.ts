@@ -6,27 +6,35 @@ export const runtime = 'nodejs';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = await params;
+    const params = await context.params;
+    console.log('API Route called with params:', params);
+    const { slug } = params;
     
     if (!slug) {
+      console.error('No slug provided in params');
       return NextResponse.json(
         { success: false, error: 'Slug is required' },
         { status: 400 }
       );
     }
 
+    console.log('Looking for article with slug:', slug);
+    
     // Get the article by slug from local data
     const article = getArticleBySlug(slug);
 
     if (!article) {
+      console.error('Article not found for slug:', slug);
       return NextResponse.json(
         { success: false, error: 'Article not found' },
         { status: 404 }
       );
     }
+
+    console.log('Article found:', article.title);
 
     // Get the category information
     const category = getCategoryById(article.category_id);
@@ -79,6 +87,10 @@ export async function GET(
 
   } catch (error) {
     console.error('Article detail API error:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

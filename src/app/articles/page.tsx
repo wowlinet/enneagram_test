@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, Filter, Clock, User, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
-import { createClient } from '@/lib/supabase';
+// Removed Supabase dependency
 
 interface Article {
   id: string;
@@ -74,7 +74,6 @@ const ArticlesContent = () => {
       if (selectedCategory) params.set('category', selectedCategory);
       if (selectedType) params.set('personality_type', selectedType);
 
-      const supabase = createClient();
       const response = await fetch(`/api/articles?${params.toString()}`);
       const data = await response.json();
 

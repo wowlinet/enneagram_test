@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { calculateEnneagramType } from '@/data/questions';
 import { saveTestResult } from '@/data/personality-types';
 
-// Force Node.js runtime to avoid Edge Runtime issues with Supabase
+// Force Node.js runtime
 export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {

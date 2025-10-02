@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTestResultById, getPersonalityTypeByNumber } from '@/data/personality-types';
 
-// Force Node.js runtime to avoid Edge Runtime issues with Supabase
+// Force Node.js runtime
 export const runtime = 'nodejs';
 
 export async function GET(

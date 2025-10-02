@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllPublishedArticles, getCategoryById, getCategoryBySlug } from '@/data/articles';
 
-// Force Node.js runtime to avoid Edge Runtime issues with Supabase
+// Force Node.js runtime
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {

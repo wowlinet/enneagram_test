@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, User, Calendar, Eye, Share2, BookOpen } from 'lucide-react';
 import Image from 'next/image';
-import { createClient } from '@/lib/supabase';
+// Removed Supabase dependency
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -57,7 +57,6 @@ const ArticleDetailPage = () => {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const supabase = createClient();
         const response = await fetch(`/api/articles/${params.slug}`);
         const data = await response.json();
 

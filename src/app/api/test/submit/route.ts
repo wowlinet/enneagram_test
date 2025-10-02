@@ -32,12 +32,25 @@ export async function POST(request: NextRequest) {
     // Calculate personality type and scores
     const result = calculateEnneagramType(answers);
 
+    // Convert scores from Record<string, number> to number[] (ordered by type 1-9)
+    const scoresArray: number[] = [
+      result.scores.perfectionist,    // Type 1
+      result.scores.helper,          // Type 2
+      result.scores.achiever,        // Type 3
+      result.scores.individualist,   // Type 4
+      result.scores.investigator,    // Type 5
+      result.scores.loyalist,        // Type 6
+      result.scores.enthusiast,      // Type 7
+      result.scores.challenger,      // Type 8
+      result.scores.peacemaker       // Type 9
+    ];
+
     // Save test result to local data
     const testResult = saveTestResult({
       user_id: userId || undefined,
       answers: answers,
       personality_type: result.type,
-      scores: result.scores,
+      scores: scoresArray,
       confidence_score: 0.85 // Default confidence score
     });
 

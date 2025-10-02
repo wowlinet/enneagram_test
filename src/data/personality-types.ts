@@ -5,7 +5,10 @@ export interface LocalPersonalityType {
   description: string;
   strengths: string[];
   growth_areas: string[];
-  characteristics: string[];
+  characteristics: {
+    core_motivation: string;
+    basic_fear: string;
+  };
 }
 
 export interface LocalTestResult {
@@ -37,13 +40,10 @@ export const personalityTypes: LocalPersonalityType[] = [
       "May suppress anger and resentment",
       "Overly critical of self and others"
     ],
-    characteristics: [
-      "Driven by inner critic",
-      "Focus on what's wrong or needs fixing",
-      "Strong sense of responsibility",
-      "Methodical and thorough",
-      "Values excellence and quality"
-    ]
+    characteristics: {
+      core_motivation: "To be good, right, perfect, and to improve everything; to be consistent with their ideals, to justify themselves, to be beyond criticism so as not to be condemned by anyone.",
+      basic_fear: "Of being corrupt/evil, defective, or wrong; of being criticized, condemned, or punished."
+    }
   },
   {
     type_number: 2,
@@ -63,13 +63,10 @@ export const personalityTypes: LocalPersonalityType[] = [
       "May neglect self-care",
       "Struggles with direct communication of needs"
     ],
-    characteristics: [
-      "Focus on others' emotions and needs",
-      "Want to be needed and appreciated",
-      "Difficulty saying no",
-      "Pride in being helpful",
-      "May ignore own feelings"
-    ]
+    characteristics: {
+      core_motivation: "To feel loved and wanted and to express their feelings for others; to be needed and appreciated, to get others to respond to them, to vindicate their claims about themselves.",
+      basic_fear: "Of being unwanted, unworthy of being loved, of being thought worthless, needy, inconsequential, dispensable, or unworthy of love."
+    }
   },
   {
     type_number: 3,
@@ -89,13 +86,10 @@ export const personalityTypes: LocalPersonalityType[] = [
       "Can be competitive and impatient",
       "May neglect relationships for success"
     ],
-    characteristics: [
-      "Driven by need for success and recognition",
-      "Image-conscious and adaptable",
-      "Focus on goals and achievements",
-      "Competitive nature",
-      "May struggle with authentic self-expression"
-    ]
+    characteristics: {
+      core_motivation: "To feel valuable and worthwhile, to be affirmed, to distinguish themselves from others, to have attention (to be seen and admired), to be remembered, to ward off feelings of worthlessness.",
+      basic_fear: "Of being worthless, without value apart from their achievements, of being ignored or insignificant, of being rejected for who they truly are."
+    }
   },
   {
     type_number: 4,
@@ -115,13 +109,10 @@ export const personalityTypes: LocalPersonalityType[] = [
       "Can be envious of others",
       "May withdraw when hurt"
     ],
-    characteristics: [
-      "Focus on what's missing or lacking",
-      "Rich inner emotional life",
-      "Desire to be unique and special",
-      "Sensitive to beauty and aesthetics",
-      "May idealize the past or future"
-    ]
+    characteristics: {
+      core_motivation: "To find themselves and their significance (to create an identity); to express themselves and their individuality, to be beautiful, to attract a rescuer.",
+      basic_fear: "That they have no identity or personal significance, of being flawed, defective, or insignificant."
+    }
   },
   {
     type_number: 5,
@@ -141,13 +132,10 @@ export const personalityTypes: LocalPersonalityType[] = [
       "Can be detached from others",
       "May avoid action and commitment"
     ],
-    characteristics: [
-      "Need for privacy and independence",
-      "Focus on understanding and knowledge",
-      "Minimal emotional expression",
-      "Preference for observation over participation",
-      "May feel drained by social interaction"
-    ]
+    characteristics: {
+      core_motivation: "To be capable and competent, to understand the environment, to have everything figured out as a way of defending the self from threats from the environment.",
+      basic_fear: "Of being useless, helpless, incapable, or invaded by others; of being overwhelmed by the needs of others."
+    }
   },
   {
     type_number: 6,
@@ -167,13 +155,10 @@ export const personalityTypes: LocalPersonalityType[] = [
       "Can be reactive and defensive",
       "May seek excessive reassurance"
     ],
-    characteristics: [
-      "Focus on potential problems and threats",
-      "Need for security and certainty",
-      "Loyalty to groups and authorities",
-      "May alternate between compliance and rebellion",
-      "Tendency to seek guidance from others"
-    ]
+    characteristics: {
+      core_motivation: "To have security, to feel supported by others, to have certitude and reassurance, to test the attitudes of others toward them, to fight against anxiety and insecurity.",
+      basic_fear: "Of being without support or guidance, of being unable to survive on their own, of being targeted by aggression."
+    }
   },
   {
     type_number: 7,
@@ -193,13 +178,10 @@ export const personalityTypes: LocalPersonalityType[] = [
       "Can be impulsive and impatient",
       "May escape into fantasy or planning"
     ],
-    characteristics: [
-      "Focus on future possibilities and options",
-      "Avoidance of pain and limitation",
-      "High energy and enthusiasm",
-      "Multiple interests and projects",
-      "May struggle with depth and commitment"
-    ]
+    characteristics: {
+      core_motivation: "To maintain their happiness and satisfaction, to preserve their freedom and happiness, to avoid missing out on worthwhile experiences.",
+      basic_fear: "Of being trapped, deprived, or in pain; of missing out on something better."
+    }
   },
   {
     type_number: 8,
@@ -219,13 +201,10 @@ export const personalityTypes: LocalPersonalityType[] = [
       "Can be impatient and aggressive",
       "May ignore own emotional needs"
     ],
-    characteristics: [
-      "Focus on power and control",
-      "Direct and confrontational style",
-      "Protective of the underdog",
-      "High energy and intensity",
-      "May struggle with showing weakness"
-    ]
+    characteristics: {
+      core_motivation: "To be self-reliant, to prove their strength and resist weakness, to be important in their world, to dominate the environment, and to stay in control of their situation.",
+      basic_fear: "Of being controlled or vulnerable to others, of being harmed or controlled by others."
+    }
   },
   {
     type_number: 9,
@@ -245,13 +224,10 @@ export const personalityTypes: LocalPersonalityType[] = [
       "Can be stubborn when pushed",
       "May neglect own needs and priorities"
     ],
-    characteristics: [
-      "Focus on maintaining peace and harmony",
-      "Avoidance of conflict and tension",
-      "Tendency to merge with others",
-      "Difficulty with self-assertion",
-      "May struggle with prioritization"
-    ]
+    characteristics: {
+      core_motivation: "To create harmony in their environment, to avoid conflicts and tension, to preserve things as they are, to resist whatever would upset or disturb them.",
+      basic_fear: "Of loss and fragmentation, of annihilation, of being separated from the world."
+    }
   }
 ];
 

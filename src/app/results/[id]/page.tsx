@@ -2,10 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import { TestResult, PersonalityType } from '@/lib/supabase';
+import { personalityTypes, LocalPersonalityType } from '@/data/personality-types';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { Share2, Download, BookOpen, ArrowLeft } from 'lucide-react';
+
+interface TestResult {
+  id: string;
+  answers: number[];
+  personality_type: number;
+  scores: { [key: string]: number };
+  created_at: string;
+}
 
 interface RadarData {
   type: string;
@@ -17,43 +24,39 @@ const ResultsPage = () => {
   const params = useParams();
   const router = useRouter();
   const [testResult, setTestResult] = useState<TestResult | null>(null);
-  const [personalityType, setPersonalityType] = useState<PersonalityType | null>(null);
+  const [personalityType, setPersonalityType] = useState<LocalPersonalityType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchResults = async () => {
+    const fetchResults = () => {
       try {
-        const { data: result, error: resultError } = await supabase
-          .from('test_results')
-          .select('*')
-          .eq('id', params.id)
-          .single();
-
-        if (resultError) {
+        // 从 localStorage 获取测试结果
+        const resultData = localStorage.getItem(`enneagram_test_result_${params.id}`);
+        
+        if (!resultData) {
           setError('Test result not found');
+          setLoading(false);
           return;
         }
 
+        const result: TestResult = JSON.parse(resultData);
         setTestResult(result);
 
-        // Fetch personality type details
-        const { data: typeData, error: typeError } = await supabase
-          .from('personality_types')
-          .select('*')
-          .eq('type_number', result.personality_type)
-          .single();
-
-        if (typeError) {
+        // 获取对应的人格类型数据
+        const typeData = personalityTypes.find(type => type.type_number === result.personality_type);
+        
+        if (!typeData) {
           setError('Personality type data not found');
+          setLoading(false);
           return;
         }
 
         setPersonalityType(typeData);
+        setLoading(false);
       } catch (err) {
         setError('Failed to load results');
         console.error('Error fetching results:', err);
-      } finally {
         setLoading(false);
       }
     };
@@ -114,11 +117,12 @@ Your Type: ${personalityType.title}
 
 Description: ${personalityType.description}
 
-Strengths: ${personalityType.strengths}
+Strengths: ${personalityType.strengths.join(', ')}
 
-Growth Areas: ${personalityType.growth_areas}
+Growth Areas: ${personalityType.growth_areas.join(', ')}
 
 Core Motivation: ${personalityType.characteristics.core_motivation}
+
 Basic Fear: ${personalityType.characteristics.basic_fear}
 
 Test Date: ${new Date(testResult.created_at).toLocaleDateString()}
@@ -181,14 +185,14 @@ Test Date: ${new Date(testResult.created_at).toLocaleDateString()}
           <div className="flex space-x-3">
             <button
               onClick={shareResults}
-              className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
             >
               <Share2 className="w-4 h-4 mr-2" />
               Share
             </button>
             <button
               onClick={downloadResults}
-              className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors"
             >
               <Download className="w-4 h-4 mr-2" />
               Download

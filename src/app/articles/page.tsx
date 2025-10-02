@@ -10,6 +10,7 @@ interface Article {
   id: string;
   title: string;
   excerpt: string;
+  slug: string;
   category: string;
   personality_type: number | null;
   author: string;
@@ -291,21 +292,13 @@ const ArticlesContent = () => {
                 onClick={() => router.push(`/articles/${article.slug}`)}
               >
                 {/* Featured Image */}
-                <div className="aspect-video bg-gradient-to-r from-indigo-500 to-purple-600 relative">
-                  {article.featured_image ? (
-                    <Image
-                      src={article.featured_image}
-                      alt={article.title}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <div className="text-white text-6xl font-bold">
-                        {article.personality_type || '📚'}
-                      </div>
-                    </div>
-                  )}
+                <div className="aspect-video relative">
+                  <Image
+                    src={article.featured_image || '/article_cover.jpg'}
+                    alt={article.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
 
                 {/* Content */}

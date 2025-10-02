@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { questions, calculateEnneagramType } from '@/data/questions';
-import { createClient } from '@/lib/supabase';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const TestPage = () => {
@@ -30,6 +29,11 @@ const TestPage = () => {
     }
   };
 
+  // 生成唯一ID的函数
+  const generateUniqueId = () => {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  };
+
   const submitTest = async () => {
     if (answers.some(answer => answer === 0)) {
       alert('Please answer all questions before submitting.');
@@ -40,30 +44,40 @@ const TestPage = () => {
     try {
       const result = calculateEnneagramType(answers);
       
-      // Get current user
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser();
+      // 生成唯一ID
+      const testId = generateUniqueId();
       
-      // Save test result to database
-      const { data, error } = await supabase
-        .from('test_results')
-        .insert({
-          user_id: user?.id || null,
-          answers,
-          personality_type: result.type,
-          scores: result.scores
-        })
-        .select()
-        .single();
+      // 准备要保存的数据
+      const testResult = {
+        id: testId,
+        answers,
+        personality_type: result.type,
+        scores: result.scores,
+        created_at: new Date().toISOString()
+      };
 
-      if (error) {
-        console.error('Error saving test result:', error);
+      // 保存到 localStorage
+      try {
+        // 获取现有的测试结果
+        const existingResults = localStorage.getItem('enneagram_test_results');
+        const results = existingResults ? JSON.parse(existingResults) : [];
+        
+        // 添加新的测试结果
+        results.push(testResult);
+        
+        // 保存回 localStorage
+        localStorage.setItem('enneagram_test_results', JSON.stringify(results));
+        
+        // 同时保存当前测试结果以便结果页面访问
+        localStorage.setItem(`enneagram_test_result_${testId}`, JSON.stringify(testResult));
+        
+        // 重定向到结果页面
+        router.push(`/results/${testId}`);
+      } catch (storageError) {
+        console.error('Error saving to localStorage:', storageError);
         alert('Error saving test result. Please try again.');
         return;
       }
-
-      // Redirect to results page
-      router.push(`/results/${data.id}`);
     } catch (error) {
       console.error('Error submitting test:', error);
       alert('Error submitting test. Please try again.');

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 
 // FAQ Item Component
@@ -275,8 +276,15 @@ export default function Home() {
             Featured Articles
           </h3>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="h-48 bg-gradient-to-br from-secondary to-primary"></div>
+            <Link href="/articles/understanding-type-1-perfectionist" className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow block">
+              <div className="h-48 relative">
+                <Image
+                  src="/article_cover.jpg"
+                  alt="Understanding Type 1: The Perfectionist"
+                  fill
+                  className="object-cover"
+                />
+              </div>
               <div className="p-6">
                 <h4 className="text-xl font-semibold mb-3 text-primary">
                   Understanding Type 1: The Perfectionist
@@ -284,13 +292,20 @@ export default function Home() {
                 <p className="text-gray-600 mb-4">
                   Learn about the core motivations and characteristics of Type 1 personalities.
                 </p>
-                <Link href="/articles/understanding-type-1-perfectionist" className="text-secondary hover:text-primary font-medium">
+                <span className="text-secondary hover:text-primary font-medium">
                   Read More →
-                </Link>
+                </span>
               </div>
-            </div>
-            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="h-48 bg-gradient-to-br from-accent to-secondary"></div>
+            </Link>
+            <Link href="/articles/growth-development" className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow block">
+              <div className="h-48 relative">
+                <Image
+                  src="/article_cover.jpg"
+                  alt="Growth and Development"
+                  fill
+                  className="object-cover"
+                />
+              </div>
               <div className="p-6">
                 <h4 className="text-xl font-semibold mb-3 text-primary">
                   Growth and Development
@@ -298,13 +313,20 @@ export default function Home() {
                 <p className="text-gray-600 mb-4">
                   Learn how to use your Enneagram type for personal growth and self-improvement.
                 </p>
-                <Link href="/articles/growth-development" className="text-secondary hover:text-primary font-medium">
+                <span className="text-secondary hover:text-primary font-medium">
                   Read More →
-                </Link>
+                </span>
               </div>
-            </div>
-            <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="h-48 bg-gradient-to-br from-primary to-accent"></div>
+            </Link>
+            <Link href="/articles/enneagram-relationships" className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow block">
+              <div className="h-48 relative">
+                <Image
+                  src="/article_cover.jpg"
+                  alt="Enneagram in Relationships"
+                  fill
+                  className="object-cover"
+                />
+              </div>
               <div className="p-6">
                 <h4 className="text-xl font-semibold mb-3 text-primary">
                   Enneagram in Relationships
@@ -312,11 +334,11 @@ export default function Home() {
                 <p className="text-gray-600 mb-4">
                   Discover how the Enneagram can improve your relationships.
                 </p>
-                <Link href="/articles/enneagram-relationships" className="text-secondary hover:text-primary font-medium">
+                <span className="text-secondary hover:text-primary font-medium">
                   Read More →
-                </Link>
+                </span>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </section>

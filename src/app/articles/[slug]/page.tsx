@@ -157,7 +157,7 @@ const ArticleDetailPage = () => {
           
           <button
             onClick={shareArticle}
-            className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
           >
             <Share2 className="w-4 h-4 mr-2" />
             Share
@@ -238,10 +238,12 @@ const ArticleDetailPage = () => {
                 ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-4 space-y-2" {...props} />,
                 li: ({node, ...props}) => <li className="ml-4" {...props} />,
                 blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-indigo-500 pl-4 italic text-gray-700 my-4" {...props} />,
-                code: ({node, inline, ...props}) => 
-                  inline 
+                code: ({node, ...props}: any) => {
+                  const isInline = props.inline;
+                  return isInline 
                     ? <code className="bg-gray-100 text-gray-800 px-1 py-0.5 rounded text-sm font-mono" {...props} />
-                    : <code className="block bg-gray-100 text-gray-800 p-4 rounded-lg text-sm font-mono overflow-x-auto" {...props} />,
+                    : <code className="block bg-gray-100 text-gray-800 p-4 rounded-lg text-sm font-mono overflow-x-auto" {...props} />;
+                },
                 pre: ({node, ...props}) => <pre className="bg-gray-100 rounded-lg p-4 overflow-x-auto mb-4" {...props} />,
                 strong: ({node, ...props}) => <strong className="font-semibold text-gray-900" {...props} />,
                 em: ({node, ...props}) => <em className="italic" {...props} />,

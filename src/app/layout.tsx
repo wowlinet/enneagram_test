@@ -8,20 +8,20 @@ import { GoogleAnalytics } from '@next/third-parties/google'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Enneagram Test - Discover Your Personality Type',
-  description: 'Take our comprehensive Enneagram personality test to discover your type and gain insights into your motivations, fears, and growth opportunities.',
+  title: 'Free Enneagram Test Online - Discover Your Personality Type',
+  description: 'Take the free Enneagram Test online and find out your personality type. Explore Enneagram types, traits, and growth paths to improve self-awareness and relationships.',
   keywords: 'enneagram, personality test, psychology, self-discovery, personal development',
   authors: [{ name: 'Enneagram Test Team' }],
   openGraph: {
-    title: 'Enneagram Test - Discover Your Personality Type',
-    description: 'Take our comprehensive Enneagram personality test to discover your type and gain insights into your motivations, fears, and growth opportunities.',
+    title: 'Free Enneagram Test Online - Discover Your Personality Type',
+    description: 'Take the free Enneagram Test online and find out your personality type. Explore Enneagram types, traits, and growth paths to improve self-awareness and relationships.',  
     type: 'website',
     locale: 'en_US',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Enneagram Test - Discover Your Personality Type',
-    description: 'Take our comprehensive Enneagram personality test to discover your type and gain insights into your motivations, fears, and growth opportunities.',
+    title: 'Free Enneagram Test Online - Discover Your Personality Type',
+    description: 'Take the free Enneagram Test online and find out your personality type. Explore Enneagram types, traits, and growth paths to improve self-awareness and relationships.',
   },
 }
 

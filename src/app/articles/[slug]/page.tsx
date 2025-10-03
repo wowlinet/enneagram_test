@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { getArticleBySlug } from '@/data/articles';
 import ArticleDetailPageClient from './ArticleDetailPageClient';
 
 interface Props {
@@ -9,16 +10,32 @@ interface Props {
 // 获取文章数据的函数
 async function getArticle(slug: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002'}/api/articles/${slug}`, {
-      cache: 'no-store' // 确保获取最新数据
-    });
+    // 直接使用本地数据源，避免在构建时的网络请求问题
+    const article = getArticleBySlug(slug);
     
-    if (!response.ok) {
+    if (!article) {
       return null;
     }
     
-    const data = await response.json();
-    return data.article;
+    // 转换为与 API 响应相同的格式
+    return {
+      id: article.id,
+      title: article.title,
+      content: article.content,
+      excerpt: article.excerpt,
+      slug: article.slug,
+      category: 'General', // 默认分类，可以后续优化
+      personalityType: null,
+      author: 'Admin',
+      publishedAt: article.created_at,
+      updatedAt: article.updated_at,
+      readingTime: 5,
+      views: 999,
+      featuredImage: article.featured_image,
+      tags: [],
+      seoTitle: article.title,
+      seoDescription: article.excerpt
+    };
   } catch (error) {
     console.error('Error fetching article for metadata:', error);
     return null;

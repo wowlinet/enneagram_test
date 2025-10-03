@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getArticleBySlug } from '@/data/articles';
+import { getArticleBySlug, getAllPublishedArticles } from '@/data/articles';
 import ArticleDetailPageClient from './ArticleDetailPageClient';
 
 interface Props {
@@ -31,7 +31,7 @@ async function getArticle(slug: string) {
       updatedAt: article.updated_at,
       readingTime: 5,
       views: 999,
-      featuredImage: article.featured_image,
+      featuredImage: article.featured_image || null,
       tags: [],
       seoTitle: article.title,
       seoDescription: article.excerpt
@@ -120,7 +120,39 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+// 生成静态参数，用于SSG
+export async function generateStaticParams() {
+  const articles = getAllPublishedArticles();
+  
+  return articles.map((article) => ({
+    slug: article.slug,
+  }));
+}
+
+// 启用增量静态再生（ISR），每小时重新验证一次
+export const revalidate = 3600;
+
 export default async function ArticleDetailPage({ params }: Props) {
   const resolvedParams = await params;
-  return <ArticleDetailPageClient />;
+  const article = await getArticle(resolvedParams.slug);
+  
+  if (!article) {
+    notFound();
+  }
+
+  // 获取相关文章和人格类型详情（如果需要的话）
+  const relatedArticles: any[] = []; // 可以后续实现相关文章逻辑
+  const personalityTypeDetails = article.personalityType ? {
+    typeNumber: article.personalityType,
+    title: `Type ${article.personalityType}`,
+    description: `Personality Type ${article.personalityType} description`
+  } : null;
+
+  return (
+    <ArticleDetailPageClient 
+      article={article}
+      personalityTypeDetails={personalityTypeDetails}
+      relatedArticles={relatedArticles}
+    />
+  );
 }

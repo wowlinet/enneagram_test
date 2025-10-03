@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, User, Calendar, Eye, Share2, BookOpen } from 'lucide-react';
 import Image from 'next/image';
 import ReactMarkdown from 'react-markdown';
@@ -44,41 +43,18 @@ interface RelatedArticle {
   featuredImage: string | null;
 }
 
-const ArticleDetailPageClient = () => {
-  const params = useParams();
+interface ArticleDetailPageClientProps {
+  article: Article;
+  personalityTypeDetails: PersonalityTypeDetails | null;
+  relatedArticles: RelatedArticle[];
+}
+
+const ArticleDetailPageClient = ({ 
+  article, 
+  personalityTypeDetails, 
+  relatedArticles 
+}: ArticleDetailPageClientProps) => {
   const router = useRouter();
-  const [article, setArticle] = useState<Article | null>(null);
-  const [personalityTypeDetails, setPersonalityTypeDetails] = useState<PersonalityTypeDetails | null>(null);
-  const [relatedArticles, setRelatedArticles] = useState<RelatedArticle[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchArticle = async () => {
-      try {
-        const response = await fetch(`/api/articles/${params.slug}`);
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to fetch article');
-        }
-
-        setArticle(data.article);
-        setPersonalityTypeDetails(data.personalityTypeDetails);
-        setRelatedArticles(data.relatedArticles || []);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load article');
-        console.error('Error fetching article:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (params.slug) {
-      fetchArticle();
-    }
-  }, [params.slug]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -106,39 +82,7 @@ const ArticleDetailPageClient = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-96">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Loading article...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !article) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">Article Not Found</h1>
-            <p className="text-gray-600 mb-6">{error || 'The article could not be loaded.'}</p>
-            <button
-              onClick={() => router.push('/articles')}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-            >
-              Browse Articles
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // 由于数据已经从服务器端传递过来，不需要loading和error状态
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">

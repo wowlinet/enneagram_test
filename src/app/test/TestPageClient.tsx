@@ -15,6 +15,14 @@ const TestPageClient = () => {
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = value;
     setAnswers(newAnswers);
+
+    // 添加延迟后自动跳转到下一题
+    setTimeout(() => {
+      // 如果不是最后一题，自动跳转到下一题
+      if (currentQuestion < questions.length - 1) {
+        nextQuestion();
+      }
+    }, 500);
   };
 
   const nextQuestion = () => {
@@ -144,20 +152,13 @@ const TestPageClient = () => {
                     onClick={() => handleAnswer(option.value)}
                     className={`w-full p-4 rounded-xl border-2 transition-all duration-200 text-left ${
                       currentAnswer === option.value
-                        ? `bg-gradient-to-r ${option.color} text-white border-transparent shadow-lg transform scale-105`
-                        : 'bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-gray-300 text-gray-700'
+                        ? `bg-gray-50 hover:bg-gray-100 border-blue-500 text-gray-700 transform scale-105`
+                        : 'bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-blue-500 text-gray-700'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="font-medium">{option.label}</span>
-                      <div className={`w-6 h-6 rounded-full border-2 ${
-                        currentAnswer === option.value
-                          ? 'bg-white border-white'
-                          : 'border-gray-300'
-                      }`}>
-                        {currentAnswer === option.value && (
-                          <div className="w-full h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-600"></div>
-                        )}
+                      <div className={`w-6 h-6 rounded-full border-2 border-gray-300`}>
                       </div>
                     </div>
                   </button>
@@ -187,7 +188,7 @@ const TestPageClient = () => {
                   className={`flex items-center px-8 py-3 rounded-xl font-medium transition-all duration-200 ${
                     currentAnswer === 0 || isSubmitting
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+                      : 'bg-accent hover:bg-accent-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
                   }`}
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Test'}
@@ -199,7 +200,7 @@ const TestPageClient = () => {
                   className={`flex items-center px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                     currentAnswer === 0
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+                      : 'bg-accent hover:bg-accent-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
                   }`}
                 >
                   Next

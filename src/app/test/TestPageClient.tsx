@@ -16,13 +16,20 @@ const TestPageClient = () => {
     newAnswers[currentQuestion] = value;
     setAnswers(newAnswers);
 
-    // 添加延迟后自动跳转到下一题
+    // 添加延迟后自动跳转到下一题或提交测试
     setTimeout(() => {
-      // 如果不是最后一题，自动跳转到下一题
-      if (currentQuestion < questions.length - 1) {
+      // 如果是最后一题，自动提交测试
+      if (currentQuestion === questions.length - 1) {
+        // 确保所有答案都已填写且未在提交过程中
+        if (!newAnswers.some(answer => answer === 0) && !isSubmitting) {
+          // 直接调用提交逻辑，传入最新的答案数组
+          submitTestWithAnswers(newAnswers);
+        }
+      } else {
+        // 如果不是最后一题，自动跳转到下一题
         nextQuestion();
       }
-    }, 500);
+    }, 300);
   };
 
   const nextQuestion = () => {
@@ -42,15 +49,15 @@ const TestPageClient = () => {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   };
 
-  const submitTest = async () => {
-    if (answers.some(answer => answer === 0)) {
+  const submitTestWithAnswers = async (answersToSubmit: number[]) => {
+    if (answersToSubmit.some(answer => answer === 0)) {
       alert('Please answer all questions before submitting.');
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const result = calculateEnneagramType(answers);
+      const result = calculateEnneagramType(answersToSubmit);
       
       // 生成唯一ID
       const testId = generateUniqueId();
@@ -58,7 +65,7 @@ const TestPageClient = () => {
       // 准备要保存的数据
       const testResult = {
         id: testId,
-        answers,
+        answers: answersToSubmit,
         personality_type: result.type,
         scores: result.scores,
         created_at: new Date().toISOString()
@@ -79,19 +86,24 @@ const TestPageClient = () => {
         // 同时保存当前测试结果以便结果页面访问
         localStorage.setItem(`enneagram_test_result_${testId}`, JSON.stringify(testResult));
         
-        // 重定向到结果页面
+        // 重定向到结果页面 - 成功跳转后直接返回，避免执行 finally 块
         router.push(`/results/${testId}`);
+        return; // 立即返回，避免执行 finally 块中的状态重置
       } catch (storageError) {
         console.error('Error saving to localStorage:', storageError);
         alert('Error saving test result. Please try again.');
+        setIsSubmitting(false);
         return;
       }
     } catch (error) {
       console.error('Error submitting test:', error);
       alert('Error submitting test. Please try again.');
-    } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const submitTest = async () => {
+    await submitTestWithAnswers(answers);
   };
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
